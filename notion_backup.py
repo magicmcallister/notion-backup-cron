@@ -1,5 +1,6 @@
 import os
 from datetime import date
+import filecmp
 import requests
 import json
 import time
@@ -55,5 +56,32 @@ def backup_process():
     print(f"\nDownload complete: {EXPORT_FILENAME}")
 
 
-if __name__ == "__main__":
+def get_old_backup_file():
+    zip_files = []
+    for root, dirs, files in os.walk(BACKUP_FOLDER, topdown=False):
+        files_path = list(os.path.join(root, f) for f in files)
+        for file in files_path:
+            if os.path.splitext(file)[1] == ".zip":
+                zip_files.append(file)
+
+    if len(zip_files) > 0:
+        old_backup_file = zip_files[0]
+        return old_backup_file
+    else:
+        return None
+
+
+def run():
+    old_backup_file = get_old_backup_file()
     backup_process()
+    if old_backup_file:
+        if filecmp.cmp(EXPORT_FILENAME, old_backup_file, shallow=True):
+            os.remove(EXPORT_FILENAME)
+            print("Remove last backup file")
+        else:
+            os.remove(old_backup_file)
+            print("Remove old backup file")
+
+
+if __name__ == "__main__":
+    run()

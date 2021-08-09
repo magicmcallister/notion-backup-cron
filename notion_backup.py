@@ -1,5 +1,5 @@
 import os
-from datetime import date
+import datetime
 import filecmp
 import requests
 import json
@@ -7,9 +7,10 @@ import time
 
 BACKUP_FOLDER = os.getenv("BACKUP_FOLDER")
 NOTION_API = os.getenv("NOTION_API")
-EXPORT_FILENAME = f"{BACKUP_FOLDER}/backup_{date.today().strftime('%d-%m-%Y')}.zip"
+EXPORT_FILENAME = f"{BACKUP_FOLDER}/backup_{datetime.datetime.now().strftime('%d-%m-%Y-%H:%M:%S')}.zip"
 NOTION_TOKEN_V2 = os.getenv("NOTION_TOKEN_V2")
 NOTION_SPACE_ID = os.getenv("NOTION_SPACE_ID")
+
 
 ENQUEUE_TASK_PARAM = {
     "task": {
@@ -58,7 +59,7 @@ def backup_process():
 
 def get_old_backup_file():
     zip_files = []
-    for root, dirs, files in os.walk(BACKUP_FOLDER, topdown=False):
+    for root, dirs, files in os.walk(BACKUP_FOLDER):
         files_path = list(os.path.join(root, f) for f in files)
         for file in files_path:
             if os.path.splitext(file)[1] == ".zip":

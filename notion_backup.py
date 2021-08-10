@@ -5,11 +5,16 @@ import requests
 import json
 import time
 
-BACKUP_FOLDER = os.getenv("BACKUP_FOLDER")
-NOTION_API = os.getenv("NOTION_API")
+from config import Config
+
+config = Config()
+config.load()
+
+BACKUP_FOLDER = config.get("BACKUP", "FOLDER")
+NOTION_API = config.get("NOTION", "API")
 EXPORT_FILENAME = f"{BACKUP_FOLDER}/backup_{datetime.datetime.now().strftime('%d-%m-%Y-%H:%M:%S')}.zip"
-NOTION_TOKEN_V2 = os.getenv("NOTION_TOKEN_V2")
-NOTION_SPACE_ID = os.getenv("NOTION_SPACE_ID")
+NOTION_TOKEN_V2 = config.get("NOTION", "TOKEN_V2")
+NOTION_SPACE_ID = config.get("NOTION", "SPACE_ID")
 
 
 ENQUEUE_TASK_PARAM = {
@@ -73,15 +78,7 @@ def get_old_backup_file():
 
 
 def run():
-    old_backup_file = get_old_backup_file()
     backup_process()
-    if old_backup_file:
-        if filecmp.cmp(EXPORT_FILENAME, old_backup_file, shallow=True):
-            os.remove(EXPORT_FILENAME)
-            print("Remove last backup file")
-        else:
-            os.remove(old_backup_file)
-            print("Remove old backup file")
 
 
 if __name__ == "__main__":

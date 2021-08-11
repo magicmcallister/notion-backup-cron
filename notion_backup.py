@@ -80,7 +80,8 @@ def get_old_backup_file():
 def run():
     old_backup_file = get_old_backup_file()
     backup_process()
-    os.remove(old_backup_file)
+    if old_backup_file:
+        os.remove(old_backup_file)
 
 if __name__ == "__main__":
     run()
